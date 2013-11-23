@@ -8,7 +8,7 @@ app.use(express.json());
 
 app.get('/account/:account_id/all_statistics', function(req, res){
   wotapi.getAllStatistics(req.params.account_id, function(result) {
-    res.send(result);
+    res.json(result);
   });
 });
 
