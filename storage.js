@@ -47,10 +47,10 @@ exports.getClosestTo = function(account_id, date) {
       deferLt = Q.defer();
 
   getWotCollection().then(function(collection) {
-    collection.findOne({date: {$lt: date}}, {sort: 'date'}, function(err, res) {
+    collection.findOne({account_id: account_id, date: {$lt: date}}, {sort: 'date'}, function(err, res) {
       deferLt.resolve(res);
     });
-    collection.findOne({date: {$gte: date}}, {sort: ['date', 'desc']}, function(err, res) {
+    collection.findOne({account_id: account_id, date: {$gte: date}}, {sort: ['date', 'desc']}, function(err, res) {
       deferGt.resolve(res);
     });
   });
