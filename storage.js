@@ -47,20 +47,30 @@ exports.getClosestTo = function(account_id, date) {
       deferGt = Q.defer(),
       deferLt = Q.defer();
 
+  console.log('Start getting closest to ', date);
   getWotCollection().then(function(collection) {
     collection.findOne({account_id: account_id, date: {$lt: date}}, {sort: 'date'}, function(err, res) {
+      console.log('Success get lt record');
       deferLt.resolve(res);
     });
     collection.findOne({account_id: account_id, date: {$gte: date}}, {sort: ['date', 'desc']}, function(err, res) {
+      console.log('Success get gt record');
       deferGt.resolve(res);
     });
   });
 
   Q.all([deferLt.promise, deferGt.promise]).then(function(result) {
+    if (_.isNull(result[0])) {
+      defer.resolve(result[1]);
+    }
+    if (_.isNull(result[1])) {
+      defer.resolve(result[0]);
+    }
     var ltDateResult = result[0],
         ltDate = ltDateResult.date,
-        gteDateResult = result[1],
-        gteDate = gteDateResult.date,
+        gteDateResult = result[1];
+
+    var gteDate = gteDateResult.date,
         ltDateDiff = date - ltDate,
         gteDateDiff = gteDate - date;
 
