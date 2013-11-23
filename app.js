@@ -1,6 +1,8 @@
 var express = require('express');
-var wotapi = require('./wotapi');
+var moment = require('moment');
 var Q = require('q');
+var wotapi = require('./wotapi');
+var storage = require('./storage');
 var app = express();
 
 app.use(express.logger());
@@ -12,9 +14,13 @@ app.get('/account/:account_id/all_statistics', function(req, res){
       gettingStats = wotapi.getAllStatistics(account_id),
       gettingTanks = wotapi.getAllTanks(account_id);
   Q.all([gettingStats, gettingTanks]).then(function(result) {
-    res.json({
+    return storage.write({
       statistics: result[0],
-      tanks: result[1]
+      tanks: result[1],
+      date: new Date()
+    }).then(function(result) {
+      console.log('Return result', result);
+      res.json(result);
     });
   });
 });
