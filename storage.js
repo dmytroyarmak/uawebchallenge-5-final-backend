@@ -1,6 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 var Q = require('q');
 var _ = require('underscore');
+var wotapi = require('./wotapi');
 var config = require('./config');
 
 
@@ -99,7 +100,11 @@ exports.getDifference = function(account_id, from, to) {
   console.log('Starting getting difference');
   Q.all([gettingFrom, gettingTo]).then(function(result) {
     console.log('Getting difference Success');
-    defer.resolve(statsDifference(result[0], result[1]));
+    var diff = statsDifference(result[0], result[1]);
+    wotapi.getTanksInfo(diff.tanks).then(function(tanksInfo) {
+      diff.tanks = tanksInfo;
+      defer.resolve(diff);
+    });
   });
 
   return defer.promise;

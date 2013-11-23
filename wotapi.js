@@ -21,6 +21,16 @@ var buildAccountTanksRequestOptions = function(account_id) {
   return buildAccountRequestOptions(account_id, config.wotApi.accountTanksUrl);
 };
 
+var buildTanksInfoRequestOptions = function(tanks) {
+  return {
+    url: config.wotApi.baseUrl + config.wotApi.tanksInfoUrl,
+    qs: {
+      application_id: config.applicationId,
+      tank_id: _.first(tanks, 100).join(',')
+    }
+  };
+};
+
 var extractStatistics = function(account_id, body) {
   var result = JSON.parse(body);
   return result.data[account_id.toString()].statistics.all;
@@ -29,6 +39,13 @@ var extractStatistics = function(account_id, body) {
 var extractTanks = function(account_id, body) {
   var result = JSON.parse(body);
   return _.pluck(result.data[account_id.toString()], 'tank_id');
+};
+
+var extractTanksInfo = function(body) {
+  var result = JSON.parse(body);
+  return _.map(result.data, function(tank) {
+    return _.pick(tank, 'tank_id', 'localized_name', 'max_health', 'weight', 'engine_power', 'circular_vision_radius');
+  });
 };
 
 exports.getStatistics = function(account_id) {
@@ -69,4 +86,20 @@ exports.getStatisticsAndTanks = function(account_id) {
   var gettingStats = exports.getStatistics(account_id),
       gettingTanks = exports.getTanks(account_id);
   return Q.all([gettingStats, gettingTanks]);
+};
+
+exports.getTanksInfo = function(tanks) {
+  var defer = Q.defer();
+  var requestOptions = buildTanksInfoRequestOptions(tanks);
+  console.log('Make request for tanks info. Tanks: ' + tanks);
+  request(requestOptions, function (error, response, body) {
+    if (error) {
+      console.log('Request for tanks info error. Tanks: ' + tanks);
+      defer.reject(error);
+    } else {
+      console.log('Request for tanks info success. Tanks: ' + tanks);
+      defer.resolve(extractTanksInfo(body));
+    }
+  });
+  return defer.promise;
 };
