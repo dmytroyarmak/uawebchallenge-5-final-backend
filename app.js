@@ -8,8 +8,14 @@ app.use(express.urlencoded());
 app.use(express.json());
 
 app.get('/account/:account_id/all_statistics', function(req, res){
-  wotapi.getAllStatistics(req.params.account_id).then(function(result) {
-    res.json(result);
+  var account_id = req.params.account_id,
+      gettingStats = wotapi.getAllStatistics(account_id),
+      gettingTanks = wotapi.getAllTanks(account_id);
+  Q.all([gettingStats, gettingTanks]).then(function(result) {
+    res.json({
+      statistics: result[0],
+      tanks: result[1]
+    });
   });
 });
 

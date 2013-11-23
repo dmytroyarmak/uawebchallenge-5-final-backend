@@ -18,7 +18,7 @@ var extractStatistics = function(account_id, body) {
   return result.data[account_id.toString()].statistics.all;
 };
 
-exports.getAllStatistics = function(account_id, callback) {
+exports.getAllStatistics = function(account_id) {
   var defer = Q.defer();
   var requestOptions = buildAccountInfoRequestOptions(account_id);
   console.log('Make request for acount info. Account id: ' + account_id);
@@ -32,5 +32,11 @@ exports.getAllStatistics = function(account_id, callback) {
       defer.resolve(statistics);
     }
   });
+  return defer.promise;
+};
+
+exports.getAllTanks = function(account_id) {
+  var defer = Q.defer();
+  defer.resolve([1,2,3]);
   return defer.promise;
 };
