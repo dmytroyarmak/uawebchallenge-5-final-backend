@@ -1,5 +1,5 @@
 var express = require('express');
-var wargamingapi = require('./wargamingapi');
+var wotapi = require('./wotapi');
 var app = express();
 
 app.use(express.logger());
@@ -7,8 +7,9 @@ app.use(express.urlencoded());
 app.use(express.json());
 
 app.get('/account/:account_id/all_statistics', function(req, res){
-  var result = wargamingapi.getAllStatistics(req.params.account_id);
-  res.send(result);
+  wotapi.getAllStatistics(req.params.account_id, function(result) {
+    res.send(result);
+  });
 });
 
 app.listen(3000);
