@@ -10,16 +10,14 @@ app.use(express.urlencoded());
 app.use(express.json());
 
 app.get('/account/:account_id/all_statistics', function(req, res){
-  var account_id = req.params.account_id,
-      gettingStats = wotapi.getAllStatistics(account_id),
-      gettingTanks = wotapi.getAllTanks(account_id);
-  Q.all([gettingStats, gettingTanks]).then(function(result) {
-    return storage.write({
+  var account_id = req.params.account_id;
+  wotapi.getStatisticsAndTanks(account_id).then(function(result) {
+    var statsAndTanks = {
       statistics: result[0],
       tanks: result[1],
       date: new Date()
-    }).then(function(result) {
-      console.log('Return result', result);
+    };
+    storage.write(statsAndTanks).then(function(result) {
       res.json(result);
     });
   });

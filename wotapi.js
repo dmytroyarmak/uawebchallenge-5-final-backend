@@ -31,7 +31,7 @@ var extractTanks = function(account_id, body) {
   return _.pluck(result.data[account_id.toString()], 'tank_id');
 };
 
-exports.getAllStatistics = function(account_id) {
+exports.getStatistics = function(account_id) {
   var defer = Q.defer();
   var requestOptions = buildAccountInfoRequestOptions(account_id);
   console.log('Make request for acount info. Account id: ' + account_id);
@@ -48,7 +48,7 @@ exports.getAllStatistics = function(account_id) {
   return defer.promise;
 };
 
-exports.getAllTanks = function(account_id) {
+exports.getTanks = function(account_id) {
   var defer = Q.defer();
   var requestOptions = buildAccountTanksRequestOptions(account_id);
   console.log('Make request for acount tanks. Account id: ' + account_id);
@@ -63,4 +63,10 @@ exports.getAllTanks = function(account_id) {
     }
   });
   return defer.promise;
+};
+
+exports.getStatisticsAndTanks = function(account_id) {
+  var gettingStats = exports.getStatistics(account_id),
+      gettingTanks = exports.getTanks(account_id);
+  return Q.all([gettingStats, gettingTanks]);
 };
