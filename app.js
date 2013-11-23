@@ -11,12 +11,13 @@ app.use(express.urlencoded());
 app.use(express.json());
 
 app.get('/account/:account_id/stats/current', function(req, res){
-  var account_id = req.params.account_id;
+  var account_id = parseInt(req.params.account_id, 10);
   wotapi.getStatisticsAndTanks(account_id).then(function(result) {
     var statsAndTanks = {
       statistics: result[0],
       tanks: result[1],
-      date: new Date()
+      date: new Date(),
+      account_id: account_id
     };
     storage.write(statsAndTanks).then(function(result) {
       res.json(result);
@@ -25,7 +26,7 @@ app.get('/account/:account_id/stats/current', function(req, res){
 });
 
 app.get('/account/:account_id/stats/diff', function(req, res){
-  var account_id = req.params.account_id;
+  var account_id = parseInt(req.params.account_id, 10);
   var period = validators.validatePeriod(req.query.from, req.query.to);
   if (period.errors) {
     console.log(period.errors);
