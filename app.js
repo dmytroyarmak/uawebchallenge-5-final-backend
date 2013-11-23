@@ -3,13 +3,14 @@ var moment = require('moment');
 var Q = require('q');
 var wotapi = require('./wotapi');
 var storage = require('./storage');
+var validators = require('./validators');
 var app = express();
 
 app.use(express.logger());
 app.use(express.urlencoded());
 app.use(express.json());
 
-app.get('/account/:account_id/all_statistics', function(req, res){
+app.get('/account/:account_id/stats/current', function(req, res){
   var account_id = req.params.account_id;
   wotapi.getStatisticsAndTanks(account_id).then(function(result) {
     var statsAndTanks = {
@@ -21,6 +22,22 @@ app.get('/account/:account_id/all_statistics', function(req, res){
       res.json(result);
     });
   });
+});
+
+app.get('/account/:account_id/stats/diff', function(req, res){
+  var account_id = req.params.account_id;
+  var period = validators.validatePeriod(req.query.from, req.query.to);
+  if (period.errors) {
+    console.log(period.errors);
+    res.json({errors: period.errors});
+  } else {
+    res.json({
+      account_id: account_id,
+      result: 'Stats diff',
+      from: period.from,
+      to: period.to
+    });
+  }
 });
 
 app.listen(3000);
