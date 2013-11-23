@@ -40,16 +40,36 @@ exports.write = function(data) {
   return defer.promise;
 };
 
-
+// Get record closest to specific date
 exports.getClosestTo = function(account_id, date) {
-  var defer = Q.defer();
-  defer.resolve({
-    tanks: [1, 2, date%23,date%57,date%32],
-    statistics: {
-      foo: date%4,
-      bar: date%7
+  var defer = Q.defer(),
+      deferGt = Q.defer(),
+      deferLt = Q.defer();
+
+  getWotCollection().then(function(collection) {
+    collection.findOne({date: {$lt: date}}, {sort: 'date'}, function(err, res) {
+      deferLt.resolve(res);
+    });
+    collection.findOne({date: {$gte: date}}, {sort: ['date', 'desc']}, function(err, res) {
+      deferGt.resolve(res);
+    });
+  });
+
+  Q.all([deferLt.promise, deferGt.promise]).then(function(result) {
+    var ltDateResult = result[0],
+        ltDate = ltDateResult.date,
+        gteDateResult = result[1],
+        gteDate = gteDateResult.date,
+        ltDateDiff = date - ltDate,
+        gteDateDiff = gteDate - date;
+
+    if (ltDateDiff < gteDateDiff) {
+      defer.resolve(ltDateResult);
+    } else {
+      defer.resolve(gteDateResult);
     }
   });
+
   return defer.promise;
 };
 
@@ -79,10 +99,7 @@ exports.getDifference = function(account_id, from, to) {
   console.log('Starting getting difference');
   Q.all([gettingFrom, gettingTo]).then(function(result) {
     console.log('Getting difference Success');
-    defer.resolve({
-      res: statsDifference(result[0], result[1]),
-      test: result
-    });
+    defer.resolve(statsDifference(result[0], result[1]));
   });
 
   return defer.promise;
