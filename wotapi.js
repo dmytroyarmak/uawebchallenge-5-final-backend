@@ -1,13 +1,20 @@
 var request = require('request');
 var config = require('./config');
 
-var buildAccountInfoUrl = function(account_id) {
-  return config.wotApi.baseUrl + config.wotApi.accountInfoUrl;
+var buildAccountInfoRequestOptions = function(account_id) {
+  return {
+    url: config.wotApi.baseUrl + config.wotApi.accountInfoUrl,
+    qs: {
+      application_id: config.applicationId,
+      account_id: account_id,
+      json: true
+    }
+  };
 };
 
 exports.getAllStatistics = function(account_id, callback) {
-  var requestUrl = buildAccountInfoUrl(account_id);
-  request(requestUrl, function (error, response, body) {
+  var requestOptions = buildAccountInfoRequestOptions(account_id);
+  request(requestOptions, function (error, response, body) {
     callback(body);
   });
 };
