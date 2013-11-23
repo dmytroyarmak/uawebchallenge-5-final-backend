@@ -1,5 +1,4 @@
 var express = require('express');
-var moment = require('moment');
 var Q = require('q');
 var wotapi = require('./wotapi');
 var storage = require('./storage');
