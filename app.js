@@ -31,11 +31,8 @@ app.get('/account/:account_id/stats/diff', function(req, res){
     console.log(period.errors);
     res.json({errors: period.errors});
   } else {
-    res.json({
-      account_id: account_id,
-      result: 'Stats diff',
-      from: period.from,
-      to: period.to
+    storage.getDifference(account_id, period.from, period.to).then(function(result) {
+      res.json(result);
     });
   }
 });
